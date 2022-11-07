@@ -2,24 +2,42 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+
 #include "ins.c"
+
+typedef struct _instruct{
+   int op   :  4;
+   int type :  4;
+   int src  : 12;
+   int dest : 12;
+} instruct;
+
 char **parse_line(char *line, int *cnt);
 char *read_line(FILE *fi);
+instruct get_all_val(char **args, int argsLen);
 
 int main(){
+    instruct ins = {0, -1, 1 ,5};
     FILE *fi = fopen("tst1", "r");
+    FILE *fo = fopen("machineCode", "w");
     int len = 0;
+    //printf("%d %d %d %d\n", ins.op, ins.type, ins.src, ins.dest);
     while (fi != NULL)
     {
         char *line = read_line(fi);
         char ** args = parse_line(line, &len);
-        for(int i = 0; i < len; i++)
-            printf("%s", args[i]);
-            printf("\n");
+        ins = get_all_val(args, len);
+        fprintf(fo, PRINTF_BIN_INT4"_"PRINTF_BIN_INT4"_"PRINTF_BIN_INT12"_"PRINTF_BIN_INT12"\n",
+              BIN_INT4(ins.op), BIN_INT4(ins.type), BIN_INT12(ins.src), BIN_INT12(ins.dest));
+
     }
+    fclose(fi);
+    fclose(fo);
+    return 0;
 }
 
-#define PARSE_LINE_TOK " ,"
+#define PARSE_LINE_TOK " ,\n\t\a"
 /**
  * @brief Input a string, seperate all args by comma and space. Return 
  * ptr of char ptr with array of args.
@@ -58,10 +76,58 @@ char *read_line(FILE *fi){
     if (getline(&line, &bufsize, fi) == -1){
         if (feof(fi)) {
             exit(-1);
-        } else  {
+        } else {
         perror("readline");
         exit(-1);
         }
     }
   return line;
+}
+
+int extract_int(char *str){
+    char *p = str;
+    while (*p) {
+        if (isdigit(*p) || *p == '-' || *p == '+') {
+            return (int)strtol(p, &p, 10);
+        } else {
+            p++;
+        }
+    }
+    fprintf(stderr, "Err when parsing %s\nNo int to be found.", str);
+    exit(-1);
+}
+
+instruct get_all_val(char **args, int argsLen){
+    instruct ins = {0};
+    // Deal with op
+    for(int i = 0; i < OP_LEN; i++){
+        if(strcmp(args[0], op_table[i]) == 0){
+            ins.op = i;
+            break;
+        }
+    }
+
+    if(argsLen == 1){   //Must be HLT currently
+        ins.type = -1;
+        ins.src = -1;
+        ins.dest = -1;
+        return ins;
+    }
+
+    // Deal with dest
+    ins.dest = extract_int(args[1]);
+
+    // Deal with src
+    if(strcmp(args[0], "BRA") == 0){
+        for(int i = 0; i < CC_LEN; i++){
+            if(strcmp(args[2], cc_table[i]) == 0){
+                ins.type = i;
+                break;
+            }
+        }
+        ins.src = 0;
+    }else{
+        ins.type = (args[2][0] == '#') ? 8 : 0;
+        ins.src = extract_int(args[2]);
+    }
 }
