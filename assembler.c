@@ -20,12 +20,18 @@ char **parse_line(char *line, int *cnt);
 char *read_line(FILE *fi);
 instruct get_all_val(char **args, int argsLen);
 
-int main(){
-    instruct ins = {0, -1, 1 ,5};
-    FILE *fi = fopen("tst1", "r");
-    FILE *fo = fopen("machineCode", "w");
+int main(int argc, char* argv[]){
+    if(argc != 3){
+        printf("Usage: ./asm asm_file_path machineCode_save_path\n");
+        exit(-1);
+    }
+    instruct ins = {0};
+    FILE *fi = fopen(argv[1], "r");
+    FILE *fo = fopen(argv[2], "w");
+    if(fi == NULL){
+            printf("Failed to open file: %s\n", argv[1]);
+        }
     int len = 0;
-    //printf("%d %d %d %d\n", ins.op, ins.type, ins.src, ins.dest);
     while (fi != NULL)
     {
         char *line = read_line(fi);
