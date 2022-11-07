@@ -1,10 +1,13 @@
+#ifndef _POSIX_C_SOURCE
+	#define  _POSIX_C_SOURCE 200809L
+#endif
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "ins.c"
+#include "ins.h"
 
 typedef struct _instruct{
    int op   :  4;
@@ -30,7 +33,6 @@ int main(){
         ins = get_all_val(args, len);
         fprintf(fo, PRINTF_BIN_INT4"_"PRINTF_BIN_INT4"_"PRINTF_BIN_INT12"_"PRINTF_BIN_INT12"\n",
               BIN_INT4(ins.op), BIN_INT4(ins.type), BIN_INT12(ins.src), BIN_INT12(ins.dest));
-
     }
     fclose(fi);
     fclose(fo);
@@ -51,15 +53,14 @@ char **parse_line(char *line, int *cnt){
     int arg_index = 0;
     char **args = calloc(4, sizeof(char *)); //No longer than three args
     char *arg = NULL;
-    char *remained_args = NULL;
     if (!args) {
         fprintf(stderr, "Mem alloc failed in parse_line\n");
         exit(-1);
     }
-    arg = strtok_r(line, PARSE_LINE_TOK, &remained_args);
+    arg = strtok(line, PARSE_LINE_TOK);
     while(arg){
         args[arg_index++] = arg;
-        arg = strtok_r(NULL, PARSE_LINE_TOK, &remained_args);
+        arg = strtok(NULL, PARSE_LINE_TOK);
     }
     *cnt = arg_index;
     return args;
@@ -100,7 +101,7 @@ int extract_int(char *str){
 instruct get_all_val(char **args, int argsLen){
     instruct ins = {0};
     // Deal with op
-    for(int i = 0; i < OP_LEN; i++){
+    for(int i = 0; i < op_len; i++){
         if(strcmp(args[0], op_table[i]) == 0){
             ins.op = i;
             break;
@@ -119,7 +120,7 @@ instruct get_all_val(char **args, int argsLen){
 
     // Deal with src
     if(strcmp(args[0], "BRA") == 0){
-        for(int i = 0; i < CC_LEN; i++){
+        for(int i = 0; i < cc_len; i++){
             if(strcmp(args[2], cc_table[i]) == 0){
                 ins.type = i;
                 break;
