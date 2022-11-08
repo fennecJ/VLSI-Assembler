@@ -20,7 +20,7 @@
  *  file is correct.
  * 
  * @author fennecJ
- * @version 2022/11/08
+ * @version 2022/11/09
  */
 
 /**
@@ -60,8 +60,9 @@ int main(int argc, char* argv[]){
 
     /* 1st parse: store to symbol table */
     int addr = 0;
-    while (!feof(fi)){
-        if(getline(&line, &bufsize, fi) == -1) continue;
+    while (getline(&line, &bufsize, fi) != -1){
+        bufsize = 0;
+        if(strcmp(line,"\n") == 0) continue;
         char ** args = parse_line(line, &len);
         int i = 0;
         if(isLabel(args[0])){
@@ -83,13 +84,14 @@ int main(int argc, char* argv[]){
     
     /* 2nd parse: replace symbol from symbol table */
     fi = fopen("__TMP_ASM_PARSE_FILE", "r");
-    while (!feof(fi)){
-        if(getline(&line, &bufsize, fi) == -1) continue;
+    while (getline(&line, &bufsize, fi) != -1){
+        bufsize = 0;
         char **args = parse_line(line, &len);
         ins = get_all_val(args, len);
         fprintf(fo, PRINTF_BIN_INT4"_"PRINTF_BIN_INT4"_"PRINTF_BIN_INT12"_"PRINTF_BIN_INT12"\n",
               BIN_INT4(ins.op), BIN_INT4(ins.type), BIN_INT12(ins.src), BIN_INT12(ins.dest));
     }
+    
     free_table();
     fclose(fi);
     fclose(fo);
