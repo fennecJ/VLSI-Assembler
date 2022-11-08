@@ -1,0 +1,9 @@
+LD R1,#0
+LD R0, Mem[9]
+BRA addr[4], EVEN
+ADD R1, #1
+SHF R0, #1
+BRA addr[7], ZERO
+BRA addr[2], ALW
+STR Mem[10], R1
+HLT
