@@ -1,15 +1,15 @@
-CC = gcc
-CCFLAG = -std=c11
+CC := gcc
+CCFLAG := -std=c11
+objs := ins.o
+target := assembler.o
+.PHONY: clean
+all: $(target)
 
-all: asm
+%.o: %.c %.h
+	$(CC) $(CCFLAG) -c $<
 
-asm: assembler.c ins.o
-	$(CC) $(CCFLAG) -o asm -g assembler.c ins.o
-
-ins.o: ins.c ins.h
-	$(CC) $(CCFLAG) -c ins.c ins.h
+$(target): %.o: %.c $(objs)
+	$(CC) $(CCFLAG) -o asm -g $^
 
 clean :
-	rm -f ins.o ins.h.gch asm
-
-.PHONY: asm clean
+	rm -f *.o *.gch asm
