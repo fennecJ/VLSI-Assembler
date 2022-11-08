@@ -1,6 +1,6 @@
 CC := gcc
 CCFLAG := -std=c11
-objs := ins.o
+objs := ins.o sym_table.o
 target := assembler.o
 .PHONY: clean
 all: $(target)
