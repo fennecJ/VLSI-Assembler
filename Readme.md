@@ -4,6 +4,7 @@
 Clone the repo and make.
 * Build
 ```bash
+cd assembler
 make
 ```
 * Run
