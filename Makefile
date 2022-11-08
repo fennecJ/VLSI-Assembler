@@ -12,4 +12,4 @@ $(target): %.o: %.c $(objs)
 	$(CC) $(CCFLAG) -o asm -g $^
 
 clean :
-	rm -f *.o *.gch asm
+	rm -f *.o *.gch asm __TMP_ASM_PARSE_FILE
