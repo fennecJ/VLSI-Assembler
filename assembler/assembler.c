@@ -65,10 +65,11 @@ int main(int argc, char* argv[]){
     int addr = 0;
     while (getline(&line, &bufsize, fi) != -1){
         char **args = parse_line(line, &len);
-        if(strcmp(args[0], "\n") == 0) continue;     //Skip blank line
+        //args[0] will be NULL if parse_line meet blank line, skip blank line by continue.
+        if(!args[0]) continue;
         if(strncmp(args[0], "//", 2) == 0) continue; // If detect comment in begining, skip
 
-        int i = 0;        
+        int i = 0;
         if(isLabel(args[0])){
             char **labAndOp = splitColon(args[0]);
             find_or_insert(labAndOp[0], addr);
