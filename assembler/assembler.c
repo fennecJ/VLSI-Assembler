@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
     FILE *fo1 = fopen("__TMP_ASM_PARSE_FILE", "w");
 
     ssize_t bufsize = 0; 
-    char *line;
+    char *line = NULL;
     instruct ins = {0};
     int len = 0;
 
@@ -58,10 +58,9 @@ int main(int argc, char* argv[]){
             printf("Failed to open file: %s\n", argv[1]);
         }
 
-    /* 1st parse: store to symbol table */
+    /* 1st parse: store symbol to symbol table */
     int addr = 0;
     while (getline(&line, &bufsize, fi) != -1){
-        bufsize = 0;
         if(strcmp(line,"\n") == 0) continue;
         char ** args = parse_line(line, &len);
         int i = 0;
@@ -76,7 +75,6 @@ int main(int argc, char* argv[]){
         }
         fprintf(fo1, "\n");
         addr++;
-        //free(line);
     }
 
     fclose(fi);
@@ -85,13 +83,13 @@ int main(int argc, char* argv[]){
     /* 2nd parse: replace symbol from symbol table */
     fi = fopen("__TMP_ASM_PARSE_FILE", "r");
     while (getline(&line, &bufsize, fi) != -1){
-        bufsize = 0;
         char **args = parse_line(line, &len);
         ins = get_all_val(args, len);
         fprintf(fo, PRINTF_BIN_INT4"_"PRINTF_BIN_INT4"_"PRINTF_BIN_INT12"_"PRINTF_BIN_INT12"\n",
               BIN_INT4(ins.op), BIN_INT4(ins.type), BIN_INT12(ins.src), BIN_INT12(ins.dest));
     }
-    
+
+    free(line);
     free_table();
     fclose(fi);
     fclose(fo);
