@@ -1,4 +1,4 @@
-# An simple assembler for cpu used in course VLSI ckt design
+# A simple assembler for cpu used in course VLSI ckt design
 
 ### Usage:
 Clone the repo and make.
@@ -13,8 +13,8 @@ make
 ```
 And the converted machine code will appeared in `$(MACHINE_CODE_SAVE_PATH)`.
 
-* Add other instruction
-Go to file ins.c, you'll see something like:
+* Add other instruction  
+Go to file assembler/ins.c, you'll see something like:
 ```c
 char *op_table[] = {
     "NOP" , "BRA",
@@ -56,7 +56,8 @@ iverilog cpu.v -o cpu
 ./cpu
 ```
 To see how RTL cpu run with machineCode `sisc.prog`.
-
+* Disclaimer: I do not own the right of `cpu.v`, if the owner hope me to remove the src code of cpu.v, please contact me. 
+**Please note that the license is only valid for file under dir assembler/**
 
 ### Known issues/bugs:
 * Only support one line comment token "//"
@@ -68,5 +69,5 @@ To see how RTL cpu run with machineCode `sisc.prog`.
 ![](https://i.imgur.com/LEm5Pbf.png)
 ![](https://i.imgur.com/tmiaJ35.png)
 ![](https://i.imgur.com/u2PhSsx.png)
-cc: cond code.
+cc: cond code.  
 The detail definition of ins can be found in `ins.c`.
