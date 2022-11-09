@@ -61,18 +61,22 @@ int main(int argc, char* argv[]){
     /* 1st parse: store symbol to symbol table */
     int addr = 0;
     while (getline(&line, &bufsize, fi) != -1){
-        if(strcmp(line,"\n") == 0) continue;
-        char ** args = parse_line(line, &len);
-        int i = 0;
+        char **args = parse_line(line, &len);
+        if(strcmp(args[0], "\n") == 0) continue;     //Skip blank line
+        if(strncmp(args[0], "//", 2) == 0) continue; // If detect comment in begining, skip
+
+        int i = 0;        
         if(isLabel(args[0])){
             char **labAndOp = splitColon(args[0]);
             find_or_insert(labAndOp[0], addr);
             fprintf(fo1, "%s ", labAndOp[1]);
-            i = 1;
+            i = 1; //Skip label so it won't be printed into tmp parse file
         }
-        while (args[i]){
+
+        while (args[i] && i < 3){   // args[3] Must be comment
             fprintf(fo1, "%s ", args[i++]);
         }
+        free(args);
         fprintf(fo1, "\n");
         addr++;
     }
@@ -87,6 +91,7 @@ int main(int argc, char* argv[]){
         ins = get_all_val(args, len);
         fprintf(fo, PRINTF_BIN_INT4"_"PRINTF_BIN_INT4"_"PRINTF_BIN_INT12"_"PRINTF_BIN_INT12"\n",
               BIN_INT4(ins.op), BIN_INT4(ins.type), BIN_INT12(ins.src), BIN_INT12(ins.dest));
+        free(args);
     }
 
     free(line);
@@ -108,14 +113,14 @@ int main(int argc, char* argv[]){
 char **parse_line(char *line, int *cnt){
     int args_cnt = 0;
     int arg_index = 0;
-    char **args = calloc(4, sizeof(char *)); //No longer than three args
+    char **args = calloc(4, sizeof(char *)); //No longer than four args (INS DEST, SRC COMMENT)
     char *arg = NULL;
     if (!args) {
         fprintf(stderr, "Mem alloc failed in parse_line\n");
         exit(-1);
     }
     arg = strtok(line, PARSE_LINE_TOK);
-    while(arg){
+    while(arg && arg_index < 4){
         args[arg_index++] = arg;
         arg = strtok(NULL, PARSE_LINE_TOK);
     }
@@ -136,7 +141,7 @@ char *read_line(FILE *fi){
 }
 
 /**
- * @brief Extract value of label of or string
+ * @brief Extract value of label or string
  * If is label: return lable addr
  * Else: return int val finded in given string
  * 
