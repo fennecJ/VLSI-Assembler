@@ -1,4 +1,4 @@
-# A simple assembler for cpu used in course VLSI ckt design
+# A simple assembler for cpu used in course VLSI system design
 
 ### Usage:
 Clone the repo and make.
