@@ -34,7 +34,6 @@ typedef struct _instruct{
 } instruct;
 
 char **parse_line(char *line, int *cnt);
-char *read_line(FILE *fi);
 instruct get_all_val(char **args, int argsLen);
 bool isLabel(char *arg);
 char **splitColon(char* arg);
@@ -128,17 +127,6 @@ char **parse_line(char *line, int *cnt){
     return args;
 }
 
-/**
- * @brief Allocate and read in a line from specific file stream fi.
- * 
- * @return char* 
- */
-char *read_line(FILE *fi){
-    char *line = NULL;
-    ssize_t bufsize = 0; 
-    getline(&line, &bufsize, fi);
-    return line;
-}
 
 /**
  * @brief Extract value of label or string
