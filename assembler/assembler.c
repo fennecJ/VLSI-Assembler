@@ -13,9 +13,13 @@
 
 /**
  * @brief A simple 2-parse assembler for cpu used in course VLSI ckt design.
- *  The program process the file 2 times.
- *  1-st time: Store all labels into sym_table.
- *  2-nd time: Replace labels from input file and convert asm to machine code.
+ *  The program process the file 2 times. Support label and one-line comment
+ *  token "//"
+ * 
+ *  1-st time: Store all labels into sym_table and save asm without label and 
+ *  comments into tmp file __TMP_ASM_PARSE_FILE
+ * 
+ *  2-nd time: Replace labels from tmp file and convert asm to machine code.
  *  This prog have little err detection/handler mechnism, user must assure the asm
  *  file is correct.
  * 
@@ -34,7 +38,7 @@ typedef struct _instruct{
 } instruct;
 
 char **parse_line(char *line, int *cnt);
-instruct get_all_val(char **args, int argsLen);
+instruct set_all_field(char **args, int argsLen);
 bool isLabel(char *arg);
 char **splitColon(char* arg);
 
@@ -87,7 +91,7 @@ int main(int argc, char* argv[]){
     fi = fopen("__TMP_ASM_PARSE_FILE", "r");
     while (getline(&line, &bufsize, fi) != -1){
         char **args = parse_line(line, &len);
-        ins = get_all_val(args, len);
+        ins = set_all_field(args, len);
         fprintf(fo, PRINTF_BIN_INT4"_"PRINTF_BIN_INT4"_"PRINTF_BIN_INT12"_"PRINTF_BIN_INT12"\n",
               BIN_INT4(ins.op), BIN_INT4(ins.type), BIN_INT12(ins.src), BIN_INT12(ins.dest));
         free(args);
@@ -166,7 +170,7 @@ int extract_int(char *str){
  * @param argsLen 
  * @return instruct 
  */
-instruct get_all_val(char **args, int argsLen){
+instruct set_all_field(char **args, int argsLen){
     instruct ins = {0};
     // Deal with op
     for(int i = 0; i < op_len; i++){
@@ -176,15 +180,15 @@ instruct get_all_val(char **args, int argsLen){
         }
     }
 
-    if(argsLen == 1){   //Must be HLT currently
+    if(argsLen == 1){
         int tmp = 0;
-        if(strlen(args[0]) == 8){
+        if(strlen(args[0]) == 8){   // Set value
             sscanf(args[0], "%x", &tmp);
             ins.op   = (tmp >> 28) & 0xf;
             ins.type = (tmp >> 24) & 0xf;
             ins.src  = (tmp >> 12) & 0xfff;
             ins.dest = (tmp) & 0xfff;
-        }else{
+        }else{                      //HLT
             ins.type = -1;
             ins.src = -1;
             ins.dest = -1;
@@ -254,7 +258,10 @@ char **splitColon(char *arg){
         res[ind++] = tmp;
         tmp = strtok(NULL, ":");
     }
-    
+
+    /* There must be exactly 1 colon in label, thus the 
+       result will be cut into exactly 2 sub str.
+    */
     if(ind != 2){
         perror("splitColon:");
         exit(-1);
