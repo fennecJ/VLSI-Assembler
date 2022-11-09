@@ -24,7 +24,7 @@ sym_table **tail = &_head;
 
 void insert(char *symbol, int addr) {
     sym_table *new_node = malloc(sizeof(sym_table));
-    new_node->symbol = malloc(sizeof(char) * strlen(symbol) + 1);
+    new_node->symbol = malloc(sizeof(char) * (strlen(symbol) + 1));
     strcpy(new_node->symbol, symbol);
     new_node->addr = addr;
     new_node->next = NULL;
