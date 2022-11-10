@@ -63,11 +63,17 @@ To see how RTL cpu run with machineCode `sisc.prog`.
 * Only support one line comment token "//"
     Multi line comment token "/**/" is illegal and won't be implemented currently.
 * This assembler parser has no syntax checking function, user should make sure the input has no syntax error by their own.
-
+* The hex format is only acceptable way to assign value using label currently, and the leading zero cannot be omitted. **The length of hex val must be exactly 8.**  
+    e.g.  If you want to assign 7:    
+```  
+Num1:7          (invalid, leading zero cannot be omitted)  
+Num1:00000007   (correct, leading zero is kept and length of hex val is exactly 8).  
+```
 
 ### assembler default rule and example:
 ![](https://i.imgur.com/LEm5Pbf.png)
 ![](https://i.imgur.com/tmiaJ35.png)
 ![](https://i.imgur.com/u2PhSsx.png)
 cc: cond code.  
-The detail definition of ins can be found in `ins.c`.
+SHF and ROT: Right:positive/Left:negative.  
+The detail definition and implementataion of ins can be found in `ins.c` and `RTL/cpu.v`.

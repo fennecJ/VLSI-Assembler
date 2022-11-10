@@ -24,7 +24,7 @@
  *  file is correct.
  * 
  * @author fennecJ
- * @version 2022/11/09
+ * @date 2022/11/10
  */
 
 /**
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
     FILE *fo = fopen(argv[2], "w");
     FILE *fo1 = fopen("__TMP_ASM_PARSE_FILE", "w");
 
-    ssize_t bufsize = 0; 
+    size_t bufsize = 0;
     char *line = NULL;
     instruct ins = {0};
     int len = 0;
@@ -78,13 +78,13 @@ int main(int argc, char* argv[]){
         }
 
         while (args[i] && i < 3){   // args[3] Must be comment
+            if(strncmp(args[i], "//", 2) == 0) break;
             fprintf(fo1, "%s ", args[i++]);
         }
         free(args);
         fprintf(fo1, "\n");
         addr++;
     }
-
     fclose(fi);
     fclose(fo1);
     
@@ -115,7 +115,6 @@ int main(int argc, char* argv[]){
  * @return char** 
  */
 char **parse_line(char *line, int *cnt){
-    int args_cnt = 0;
     int arg_index = 0;
     char **args = calloc(4, sizeof(char *)); //No longer than four args (INS DEST, SRC COMMENT)
     char *arg = NULL;
@@ -173,23 +172,26 @@ int extract_int(char *str){
  */
 instruct set_all_field(char **args, int argsLen){
     instruct ins = {0};
+    int i;
     // Deal with op
-    for(int i = 0; i < op_len; i++){
+    for(i = 0; i < op_len; i++){
         if(strcmp(args[0], op_table[i]) == 0){
             ins.op = i;
             break;
         }
     }
+    if(i == 0)     //NOP
+        return ins;
 
     if(argsLen == 1){
         int tmp = 0;
-        if(strlen(args[0]) == 8){   // Set value
+        if(strlen(args[0]) == 8){   // Set value via label
             sscanf(args[0], "%x", &tmp);
             ins.op   = (tmp >> 28) & 0xf;
             ins.type = (tmp >> 24) & 0xf;
             ins.src  = (tmp >> 12) & 0xfff;
             ins.dest = (tmp) & 0xfff;
-        }else{                      //HLT
+        }else{                      // HLT
             ins.type = -1;
             ins.src = -1;
             ins.dest = -1;
@@ -202,7 +204,7 @@ instruct set_all_field(char **args, int argsLen){
 
     // Deal with src
     if(strcmp(args[0], "BRA") == 0){
-        for(int i = 0; i < cc_len; i++){
+        for(i = 0; i < cc_len; i++){
             if(strcmp(args[2], cc_table[i]) == 0){
                 ins.type = i;
                 break;
@@ -218,6 +220,7 @@ instruct set_all_field(char **args, int argsLen){
         ins.type = (args[2][0] == '#') ? 8 : 0;
         ins.src = extract_int(args[2]);
     }
+    return ins;
 }
 
 
