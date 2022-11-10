@@ -17,8 +17,6 @@
     #define BIN_INT12(i) \
         BIN_INT8((i) >> 4),   BIN_INT4(i)
 
-    extern char *cc_table[];
-    extern char *alt_cc_table[];
-    extern char *op_table[];
-    extern int cc_len, op_len;
+    int op_find(char *str);
+    int cc_find(char *str);
 #endif

@@ -5,10 +5,10 @@
 #include <string.h>
 #include "sym_table.h"
 
-void insert(char *symbol, int addr);
-int find_or_insert(char *symbol, int addr);
-void list();
-void free_table();
+void sym_insert(char *symbol, int addr);
+int  sym_find_or_insert(char *symbol, int addr);
+void sym_list();
+void sym_free_table();
 
 /* A symbol table implemented with linked list */
 typedef struct __symbol_impl sym_table;
@@ -22,7 +22,7 @@ static sym_table *_head = NULL;
 static sym_table **tail = &_head;
 
 
-void insert(char *symbol, int addr) {
+void sym_insert(char *symbol, int addr) {
     sym_table *new_node = malloc(sizeof(sym_table));
     new_node->symbol = malloc(sizeof(char) * (strlen(symbol) + 1));
     strcpy(new_node->symbol, symbol);
@@ -33,7 +33,7 @@ void insert(char *symbol, int addr) {
 }
 
 
-int find(char *symbol){
+int sym_find(char *symbol){
     sym_table **head = &_head;
     while (*head) {
         if (strcmp(symbol, (*head)->symbol) == 0) {
@@ -44,7 +44,7 @@ int find(char *symbol){
     return -1;
 }
 
-int find_or_insert(char *symbol, int addr) {
+int sym_find_or_insert(char *symbol, int addr) {
     sym_table **head = &_head;
     while (*head) {
         if (strcmp(symbol, (*head)->symbol) == 0) {
@@ -52,12 +52,12 @@ int find_or_insert(char *symbol, int addr) {
         }
         head = &(*head)->next;
     }
-    insert(symbol, addr);
+   sym_insert(symbol, addr);
     return (*head)->addr;
 }
 
 
-void list() { /* Used for debug */
+void sym_list() { /* Used for debug */
     sym_table **head = &_head;
     while (*head) {
         printf("%s\t%d\n", (*head)->symbol, (*head)->addr);
@@ -66,7 +66,7 @@ void list() { /* Used for debug */
 }
 
 
-void free_table() {
+void sym_free_table() {
     sym_table **head = &_head;
     while (*head) {
         sym_table *tmp = *head;

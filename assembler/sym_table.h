@@ -6,7 +6,7 @@
  * @param symbol 
  * @param addr 
  */
-void insert(char *symbol, int addr);
+void sym_insert(char *symbol, int addr);
 
 
 /**
@@ -16,7 +16,7 @@ void insert(char *symbol, int addr);
  * @param symbol 
  * @return int 
  */
-int find(char *symbol);
+int sym_find(char *symbol);
 
 
 /**
@@ -28,19 +28,19 @@ int find(char *symbol);
  * @param addr 
  * @return int 
  */
-int find_or_insert(char *symbol, int addr);
+int sym_find_or_insert(char *symbol, int addr);
 
 
 /**
  * @brief List all elements in table
  * 
  */
-void list();
+void sym_list();
 
 
 /**
  * @brief Free allocated mem of sym table
  * 
  */
-void free_table();
+void sym_free_table();
 #endif // _SYM_TABLE_H

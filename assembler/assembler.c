@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
         int i = 0;
         if(isLabel(args[0])){
             char **labAndOp = splitColon(args[0]);
-            find_or_insert(labAndOp[0], addr);
+            sym_insert(labAndOp[0], addr);
             fprintf(fo1, "%s ", labAndOp[1]);
             i = 1; //Skip label so it won't be printed into tmp parse file
         }
@@ -85,6 +85,7 @@ int main(int argc, char* argv[]){
         fprintf(fo1, "\n");
         addr++;
     }
+    //sym_list(); //List the symbol table
     fclose(fi);
     fclose(fo1);
     
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]){
     }
 
     free(line);
-    free_table();
+    sym_free_table();
     fclose(fi);
     fclose(fo);
     return 0;
@@ -141,7 +142,7 @@ char **parse_line(char *line, int *cnt){
  * @return int 
  */
 int extract_int(char *str){
-    int lab_val = find(str);
+    int lab_val = sym_find(str);
     if(lab_val != -1)
         return lab_val;
 
@@ -172,15 +173,10 @@ int extract_int(char *str){
  */
 instruct set_all_field(char **args, int argsLen){
     instruct ins = {0};
-    int i;
     // Deal with op
-    for(i = 0; i < op_len; i++){
-        if(strcmp(args[0], op_table[i]) == 0){
-            ins.op = i;
-            break;
-        }
-    }
-    if(i == 0)     //NOP
+    ins.op = op_find(args[0]);
+
+    if(ins.op == 0)     //NOP
         return ins;
 
     if(argsLen == 1){
@@ -204,17 +200,7 @@ instruct set_all_field(char **args, int argsLen){
 
     // Deal with src
     if(strcmp(args[0], "BRA") == 0){
-        for(i = 0; i < cc_len; i++){
-            if(strcmp(args[2], cc_table[i]) == 0){
-                ins.type = i;
-                break;
-            }
-
-            if(strcmp(args[2], alt_cc_table[i]) == 0){
-                ins.type = i;
-                break;
-            }
-        }
+        ins.type = cc_find(args[2]);
         ins.src = 0;
     }else{
         ins.type = (args[2][0] == '#') ? 8 : 0;
