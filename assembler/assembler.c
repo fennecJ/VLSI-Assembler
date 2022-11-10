@@ -106,7 +106,7 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-#define PARSE_LINE_TOK " ,\n\t\a"
+#define PARSE_LINE_TOK " ,\n\t\a\r"
 /**
  * @brief Input a string, seperate all args by comma and space. Return 
  * ptr of char ptr with array of args.
@@ -178,7 +178,6 @@ instruct set_all_field(char **args, int argsLen){
 
     if(ins.op == 0)     //NOP
         return ins;
-
     if(argsLen == 1){
         int tmp = 0;
         if(strlen(args[0]) == 8){   // Set value via label
