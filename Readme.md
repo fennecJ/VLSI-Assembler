@@ -1,20 +1,23 @@
 # A simple assembler for cpu used in course VLSI system design
 
 ### Usage:
-Clone the repo and make.
+* Clone the repo.
+```
+git clone https://github.com/fennecJ/VLSI-Assembler
+```
 * Build
 ```bash
-cd assembler
+cd VLSI-Assembler/assembler
 make
 ```
 * Run
 ```bash
 ./asm $(ASM_FILE_PATH) $(MACHINE_CODE_SAVE_PATH)
 ```
-And the converted machine code will appeared in `$(MACHINE_CODE_SAVE_PATH)`.
+And the converted machine code will appeared in `$(MACHINE_CODE_SAVE_PATH)`.  
 
 * Add other instruction  
-Go to file assembler/ins.c, you'll see something like:
+Go to file `assembler/ins.c`, you'll see something like:  
 ```c
 char *op_table[] = {
     "NOP" , "BRA",
@@ -60,15 +63,46 @@ To see how RTL cpu run with machineCode `sisc.prog`.
 **Please note that the license is only valid for file under dir assembler/**
 
 ### Known issues/bugs:
-* Only support one line comment token "//"
-    Multi line comment token "/**/" is illegal and won't be implemented currently.
-* This assembler parser has no syntax checking function, user should make sure the input has no syntax error by their own.
+* Only support one line comment token "//"  
+    Multi line comment token "/**/" is illegal and won't be implemented currently.  
+
+* Comment must be seperated from code by at least 1 space  
+    e.g.
+    ```
+    (X) BRA END, CCZ// If cond is zero then goto end
+    (O) BRA END, CCZ // If cond is zero then goto end
+                    ^ There must be at least 1 space
+    ```
+
+* opCode = 0 is reserved for NOP  
+    If you want to change opCode of NOP to other number, goto `assembler/assembler.c`, find funct set_all_field, and change  
+    ```c
+    if(i == 0)     //NOP
+    return ins;
+    ```
+    to   
+    ```c
+    if(i == NUM_OF_NOP)     //NOP
+    return ins;
+    ```
+
+* Currently you can only add new instruct with format {inst dest, src}  
+    The instuct added to file `assembler/ins.c` must be with format {inst dest, src}, **inst without dest and/or src is not allowed**  
+    e.g.
+    ```
+    (X)JEQ R0        (Invalid, missing dest and/or src) 
+    (O)DIV R0, R1
+    ```
+    If you want to add instruct other than format {inst dest, src}, you need to modify funct set_all_field in `assembler/assembler.c` by yourself.  
+
+* This assembler parser has no syntax checking function, user should make sure the input has no syntax error by their own.  
+
 * The hex format is only acceptable way to assign value using label currently, and the leading zero cannot be omitted. **The length of hex val must be exactly 8.**  
     e.g.  If you want to assign 7:    
-```  
-Num1:7          (invalid, leading zero cannot be omitted)  
-Num1:00000007   (correct, leading zero is kept and length of hex val is exactly 8).  
-```
+    ```  
+    (X) Num1:7          (invalid, leading zero cannot be omitted)  
+    (O) Num1:00000007   (correct, leading zero is kept and length of hex val is exactly 8)  
+    ```
 
 ### assembler default rule and example:
 ![](https://i.imgur.com/LEm5Pbf.png)
@@ -76,4 +110,4 @@ Num1:00000007   (correct, leading zero is kept and length of hex val is exactly 
 ![](https://i.imgur.com/u2PhSsx.png)
 cc: cond code.  
 SHF and ROT: Right:positive/Left:negative.  
-The detail definition and implementataion of ins can be found in `ins.c` and `RTL/cpu.v`.
+The detail definition and implementataion of ins can be found in `assembler/ins.c` and `RTL/cpu.v`.
