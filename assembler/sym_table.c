@@ -18,8 +18,8 @@ struct __symbol_impl {
     sym_table *next;
 };
 
-sym_table *_head = NULL;
-sym_table **tail = &_head;
+static sym_table *_head = NULL;
+static sym_table **tail = &_head;
 
 
 void insert(char *symbol, int addr) {
