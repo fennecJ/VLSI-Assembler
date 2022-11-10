@@ -73,6 +73,13 @@ To see how RTL cpu run with machineCode `sisc.prog`.
     (O) BRA END, CCZ // If cond is zero then goto end
                     ^ There must be at least 1 space
     ```
+* Label must be added with a colon followed by beginning of instruction **without space**.
+    e.g.
+    ```
+    (x)L1: NOP (invalid, space between colon and Q2)
+    (x)L1 :NOP (invalid, space between colon and L1)
+    (O)L1:NOP
+    ```
 
 * opCode = 0 is reserved for NOP  
     If you want to change opCode of NOP to other number, goto `assembler/assembler.c`, find funct set_all_field, and change  

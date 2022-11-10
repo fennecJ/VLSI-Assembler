@@ -252,7 +252,8 @@ char **splitColon(char *arg){
        result will be cut into exactly 2 sub str.
     */
     if(ind != 2){
-        perror("splitColon:");
+        fprintf(stderr, "splitColon found err with label: %s\nPlease make sure " \
+        "the label is followed by colon with instruction WITHOUT space\n", res[0]);
         exit(-1);
     }
     return res;
