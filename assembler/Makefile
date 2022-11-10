@@ -1,5 +1,5 @@
 CC := gcc
-CCFLAG := -std=c11
+CCFLAG := -std=c11 -Wall
 objs := ins.o sym_table.o
 target := assembler.o
 .PHONY: clean
