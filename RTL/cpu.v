@@ -28,6 +28,7 @@ reg[SBITS-1:0] psr; // Processor Status Register
 reg[ADDRSIZE-1:0] pc ; // Program counter
 reg dir; // rotate direction
 reg reset; // System Reset
+reg[2*WIDTH-1:0] rotTmp; // A tmp reg used in `ROT
 integer i; // useful for interactive debugging
 // General definitions
 `define TRUE 1
@@ -191,21 +192,18 @@ task execute ; // Decode and execute the instruction.
                 clearcondcode ;
                 src1 = getsrc(ir) ;
                 src2 = getdst(ir) ;
-                dir = (src1[ADDRSIZE-1]) ? `LEFT : `RIGHT ;
-                i = {{(WIDTH-ADDRSIZE){src1[ADDRSIZE-1]}}, src1[ADDRSIZE-1:0]};
-                i = (i>0) ? i : -i;
-                while (i > 0) begin
-                    if (dir == `RIGHT) begin
-                        result = src2 >> 1 ;
-                        result[WIDTH-1] = src2 [0] ;
-                    end
-                    else begin
-                        result = src2 << 1 ;
-                        result[0] =src2[WIDTH-1] ;
-                    end
-                    i= i - 1 ;
-                    src2 = result ;
-                end //end of while
+                i = src1;
+                dir = (i >= 0) ? `RIGHT : `LEFT;
+                i   = (i >= 0) ? i & 5'd31 : (-i) & 5'd31; // &31 : mod 32
+                rotTmp = {src2, src2};
+                if(dir == `RIGHT) begin
+                    rotTmp = (rotTmp >> i);
+                    result = rotTmp[WIDTH-1:0];
+                end
+                else begin
+                    rotTmp = (rotTmp << i);
+                    result = rotTmp[2*WIDTH-1:WIDTH];
+                end
                 setcondcode(result);
             end
             `HLT : begin
