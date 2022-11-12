@@ -37,6 +37,7 @@ integer i; // useful for interactive debugging
 // Define Instruction fields
 `define OPCODE ir[31:28]
 `define SRC ir[23:12]
+`define SRC_SIGNED ir[23]
 
 `define DST ir[11:0]
 `define SRCTYPE ir[27] // source type, 0=reg (mem for LD), 1=imm
@@ -78,7 +79,7 @@ function [WIDTH-1:0] getsrc;
     input [WIDTH-1:0] in;
     begin
         if (`SRCTYPE == `REGTYPE) getsrc = RFILE[`SRC] ;
-        else getsrc = `SRC ; // immediate type
+        else getsrc = {{(WIDTH-ADDRSIZE){`SRC_SIGNED}}, `SRC}; // immediate type
     end
 endfunction
 
@@ -141,7 +142,7 @@ task execute ; // Decode and execute the instruction.
             `BRA : if (checkcond( `CCODE) == 1) pc = `DST;
             `LD : begin
                 clearcondcode ;
-                if (`SRCTYPE) RFILE[`DST] = `SRC ;
+                if (`SRCTYPE) RFILE[`DST] = {{(WIDTH - ADDRSIZE){`SRC_SIGNED}},{`SRC}} ;
                 else RFILE[`DST]=MEM[`SRC];
                 setcondcode({1'b0,RFILE[`DST]}) ;
             end
@@ -177,7 +178,11 @@ task execute ; // Decode and execute the instruction.
                 clearcondcode ;
                 src1 = getsrc(ir) ;
                 src2 = getdst(ir) ;
-                i = src1[ADDRSIZE-1:0] ;
+                i = src1;
+                /*
+                Original way will cause err when src1[ADDRSIZE-1:0] < 0
+                because it won't extend the sign automatically
+                */
                 result = (i>=0) ? (src2 >> i) : (src2 << -i) ;
                 setcondcode(result);
             end
@@ -206,7 +211,7 @@ task execute ; // Decode and execute the instruction.
                 $display("Halt ... ");
                 $stop ;
             end
-            default : $display ("Error : Illegal Opcode ." );
+            default : $display ("Error : Illegal Opcode: %h.", `OPCODE);
         endcase
     end
 endtask
