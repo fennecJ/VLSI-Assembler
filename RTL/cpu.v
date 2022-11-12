@@ -191,8 +191,9 @@ task execute ; // Decode and execute the instruction.
                 clearcondcode ;
                 src1 = getsrc(ir) ;
                 src2 = getdst(ir) ;
-                dir = (src1[ADDRSIZE-1] >=0) ? `RIGHT : `LEFT ;
-                i = ( src1[ADDRSIZE-1] >=0)? src1 : -src1[ADDRSIZE-1:0] ;
+                dir = (src1[ADDRSIZE-1]) ? `LEFT : `RIGHT ;
+                i = {{(WIDTH-ADDRSIZE){src1[ADDRSIZE-1]}}, src1[ADDRSIZE-1:0]};
+                i = (i>0) ? i : -i;
                 while (i > 0) begin
                     if (dir == `RIGHT) begin
                         result = src2 >> 1 ;
